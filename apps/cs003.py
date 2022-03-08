@@ -137,11 +137,16 @@ app.layout = html.Div([
             'color': colors['text']})
 
         ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 1
+        # |----------------------------------------------------------------------------|
         dcc.Tab(label=Station_1,style=tab_style, selected_style=tab_selected_style, children=[
         html.Br(),
         html.H1(children='Slot Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'slots1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            # html.Button("Download Thickness Data", id="s1_thickness_csv"),
+            # dcc.Download(id="s1thickness_csv"),
             dcc.Graph(id='graphslots1',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='RZ Status'),
@@ -162,6 +167,9 @@ app.layout = html.Div([
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
             dcc.Graph(id='graphcurrent1',style={'verticalAlign': 'middle','margin-left': '550px'}), 
         ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 2
+        # |----------------------------------------------------------------------------|
         dcc.Tab(label=Station_2,style=tab_style, selected_style=tab_selected_style, children=[
         html.Br(),
         html.H1(children='Slot Status'),
@@ -187,6 +195,9 @@ app.layout = html.Div([
                         dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
             dcc.Graph(id='graphcurrent2',style={'verticalAlign': 'middle','margin-left': '550px'}),     
         ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 3
+        # |----------------------------------------------------------------------------|
         dcc.Tab(label=Station_3,style=tab_style, selected_style=tab_selected_style, children=[
         html.Br(),
         html.H1(children='Slot Status'),
@@ -212,6 +223,9 @@ app.layout = html.Div([
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
             dcc.Graph(id='graphcurrent3',style={'verticalAlign': 'middle','margin-left': '550px'}), 
         ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 4
+        # |----------------------------------------------------------------------------|
         dcc.Tab(label=Station_4,style=tab_style, selected_style=tab_selected_style, children=[
         html.Br(),
         html.H1(children='Slot Status'),

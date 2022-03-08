@@ -97,7 +97,9 @@ def display_page(pathname):
     else:
         return home.app.layout
 
-#___________________________________________________________________________________ Time delta____________________________________________________________________________________________
+# |----------------------------------------------------------------------------|
+# Time Delta for reference
+# |----------------------------------------------------------------------------|
 today = date.today()
 yesterday = today - timedelta(days = 1)
 today=str(today)
@@ -107,8 +109,9 @@ Station_1 = "H01JBA21P"
 Station_2 = "H01JBA15R"
 Station_3 = "H01JBA11R"
 Station_4 = "H01JBA14R"
-
-#___________________________________________________________________________________  Slot empty or not ____________________________________________________________________________________________
+# |----------------------------------------------------------------------------|
+# SLot Empty 
+# |----------------------------------------------------------------------------|
 res = es.search(index="basket_data", doc_type="", body={"_source":{}}, size=1000000,)
 print("basket_data ACQUIRED SUCCESSFULLY")
 basket_data = pd.json_normalize(res['hits']['hits'])
@@ -139,12 +142,22 @@ def slots_plot(output,input):
         # fig.update_xaxes(categoryorder='category ascending')
         
         return fig
+# @app.callback(
+#     Output("download-dataframe-csv", "data"),
+#     Input("btn_csv", "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def func(n_clicks):
+#     return dcc.send_data_frame(df.to_csv, "mydf.csv")
 for i in range(4):
     slots_plot("graphslots{}".format((i+1)),"slots{}".format((i+1)))
 
 
-# #___________________________________________________________________________________  slide Placement ____________________________________________________________________________________________
-#for Slide placement to get thickness info
+# |----------------------------------------------------------------------------|
+# Multiple Indexes from Elastic Getting Merged as one Dataframe
+# |----------------------------------------------------------------------------|
+
+# #for Slide placement to get thickness info
 res = es.search(index="slide_placement", doc_type="", body={"_source":{}}, size=1000000,)
 print("slide_placement ACQUIRED SUCCESSFULLY")
 slide_placement = pd.json_normalize(res['hits']['hits'])
@@ -174,7 +187,9 @@ both['dropdown'] = both['date'].astype(str)+"("+both['_source.data.load_identifi
 both['computed_angle'] = both['_source.data.computed_angle']*(180/3.14)
 both['slide_height'] = both['_source.data.slide_height_um']/1000
 
-
+# |----------------------------------------------------------------------------|
+# RZ plots
+# |----------------------------------------------------------------------------|
 
 def rz_plot(output,input):
     @app.callback(Output(output, 'figure'),
@@ -200,7 +215,9 @@ def rz_plot(output,input):
 for i in range(4):
     rz_plot("graphrz{}".format((i+1)),"rz{}".format((i+1)))
 
-##
+# |----------------------------------------------------------------------------|
+# Slide Placement Plots
+# |----------------------------------------------------------------------------|
 
 def placement_plot(output,input):
     @app.callback(Output(output, 'figure'),
@@ -240,18 +257,9 @@ def placement_plot(output,input):
 for i in range(4):
     placement_plot("graphplace{}".format((i+1)),"place{}".format((i+1)))
 
-# #___________________________________________________________________________________  Locking Status  ____________________________________________________________________________________________
-# res = es.search(index="slide_locking", doc_type="", body={"_source":{}}, size=1000000,)
-# print("slide_locking ACQUIRED SUCCESSFULLY")
-# slide_locking = pd.json_normalize(res['hits']['hits'])
-# slide_locking['date'] = pd.to_datetime(slide_locking['_source.data.time_stamp']).dt.date
-# slide_locking['date'] = pd.to_datetime(slide_locking['date'])
-# slide_locking['dropdown'] = slide_locking['date'].astype(str)+"("+slide_locking['_source.data.load_identifier']+")"
-# slide_locking['row_col'] = (slide_locking['_source.data.row_index']+1).astype(str)+"_"+(slide_locking['_source.data.col_index']+1).astype(str)
-# slide_locking = slide_locking.sort_values(["_source.data.row_index","_source.data.col_index"], ascending = (True, True))
-# slide_locking['slide_height'] = slide_locking['_source.data.slide_height_um']/1000
-
-
+# |----------------------------------------------------------------------------|
+# Dynamic Slide Locking 
+# |----------------------------------------------------------------------------|
 
 def current_plot(output,input,o_input):
     @app.callback(Output(output, 'figure'),
@@ -302,7 +310,7 @@ def current_plot(output,input,o_input):
             fig = make_subplots(specs=[[{"secondary_y": True}]])
 
             fig.add_trace(
-                go.Scatter(x=x1['row_col'],y=x1['slide_height'], name="Slide Height"),
+                go.Scatter(x=x1['row_col'],y=x1['slide_height'], mode="lines+markers",name="Slide Height"),
                 secondary_y=True,
             )
 

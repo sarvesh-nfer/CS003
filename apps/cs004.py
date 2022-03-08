@@ -1,12 +1,13 @@
 #____________________________________________________________ CS003 ________________________________________________________________
 
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import dcc
+from dash import html
+from dash import dash_table
 import plotly.express as px
 import pandas as pd
 import numpy as np
-import dash_table
+
 from datetime import date
 from datetime import timedelta
 import plotly.graph_objects as go
@@ -16,11 +17,6 @@ import os
 import sys
 import elasticsearch
 from elasticsearch import Elasticsearch
-import pandas as pd
-from datetime import date
-from datetime import timedelta
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 es= Elasticsearch([{'host': '10.10.6.90','port': 9200}])
 
@@ -59,10 +55,10 @@ slide_locking['date'] = pd.to_datetime(slide_locking['date'])
 
 slide_locking['dropdown'] = slide_locking['date'].astype(str)+"("+slide_locking['_source.data.load_identifier']+")"
 
-Station_1 = "H01CBA05P"
-Station_2 = "H01JBA11R"
-Station_3 = "H01CBA05P"
-Station_4 = "H01JBA15R"
+Station_1 = "H01JBA21P"
+Station_2 = "H01JBA15R"
+Station_3 = "H01JBA11R"
+Station_4 = "H01JBA14R"
 
 
 
@@ -138,34 +134,40 @@ app.layout = html.Div([
             'color': colors['text']}),
             html.H1(children='\t\t- Last updated for :'+str(date.today()- timedelta(days = 1)),style={
             'textAlign': 'center',
-            'color': colors['text']}),
-            
-            
+            'color': colors['text']})
 
         ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 1
+        # |----------------------------------------------------------------------------|
         dcc.Tab(label=Station_1,style=tab_style, selected_style=tab_selected_style, children=[
         html.Br(),
         html.H1(children='Slot Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'slots1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
             dcc.Graph(id='graphslots1',style={'verticalAlign': 'middle','margin-left': '550px'}),
-            # html.Div([dcc.Graph(id='graphslots1',style={'verticalAlign': 'middle','margin-left': '550px'}),], style={'display': 'inline-block','margin-left': '550px','margin-top':'10px','verticalAlign': 'top', 'border': '2px green solid'}),
         html.Br(),
         html.H1(children='RZ Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'rz1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphrz1',style={'verticalAlign': 'middle','margin-left': '150px'}),
+            dcc.Graph(id='graphrz1',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Placement Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'place1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphplace1',style={'verticalAlign': 'middle','margin-left': '350px'}),
+            dcc.Graph(id='graphplace1',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Locking Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'current1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphcurrent1',style={'verticalAlign': 'middle','margin-left': '350px'}), 
+            html.Br(),
+            dcc.RadioItems(id = 's1_rbutton',options = [dict(label = 'Current Info', value = 'A'),
+                                                 dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
+            dcc.Graph(id='graphcurrent1',style={'verticalAlign': 'middle','margin-left': '550px'}), 
         ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 2
+        # |----------------------------------------------------------------------------|
         dcc.Tab(label=Station_2,style=tab_style, selected_style=tab_selected_style, children=[
         html.Br(),
         html.H1(children='Slot Status'),
@@ -176,40 +178,52 @@ app.layout = html.Div([
         html.H1(children='RZ Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'rz2', options = category2,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphrz2',style={'verticalAlign': 'middle','margin-left': '150px'}),
+            dcc.Graph(id='graphrz2',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Placement Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'place2', options = category2,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphplace2',style={'verticalAlign': 'middle','margin-left': '350px'}),    
+            dcc.Graph(id='graphplace2',style={'verticalAlign': 'middle','margin-left': '550px'}),    
         html.Br(),
         html.H1(children='Slide Locking Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'current2', options = category2,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphcurrent2',style={'verticalAlign': 'middle','margin-left': '350px'}),     
+            html.Br(),
+            dcc.RadioItems(id = 's2_rbutton',options = [dict(label = 'Current Info', value = 'A'),
+                        dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
+            dcc.Graph(id='graphcurrent2',style={'verticalAlign': 'middle','margin-left': '550px'}),     
         ]),
-        # dcc.Tab(label=Station_3,style=tab_style, selected_style=tab_selected_style, children=[
-        # html.Br(),
-        # html.H1(children='Slot Status'),
-        # html.Label("Choose date"),
-        #         dcc.Dropdown(id = 'slots3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
-        #         dcc.Graph(id='graphslots3'),
-        # html.Br(),
-        # html.H1(children='RZ Status'),
-        # html.Label("Choose date"),
-        #     dcc.Dropdown(id = 'rz3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
-        #     dcc.Graph(id='graphrz3'),
-        # html.Br(),
-        # html.H1(children='Slide Placement Status'),
-        # html.Label("Choose date"),
-        #     dcc.Dropdown(id = 'place3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
-        #     dcc.Graph(id='graphplace3'),
-        # html.Br(),
-        # html.H1(children='Slide Locking Status'),
-        # html.Label("Choose date"),
-        #     dcc.Dropdown(id = 'current3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
-        #     dcc.Graph(id='graphcurrent4'), 
-        # ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 3
+        # |----------------------------------------------------------------------------|
+        dcc.Tab(label=Station_3,style=tab_style, selected_style=tab_selected_style, children=[
+        html.Br(),
+        html.H1(children='Slot Status'),
+        html.Label("Choose date"),
+                dcc.Dropdown(id = 'slots3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
+                dcc.Graph(id='graphslots3',style={'verticalAlign': 'middle','margin-left': '550px'}),
+        html.Br(),
+        html.H1(children='RZ Status'),
+        html.Label("Choose date"),
+            dcc.Dropdown(id = 'rz3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
+            dcc.Graph(id='graphrz3',style={'verticalAlign': 'middle','margin-left': '550px'}),
+        html.Br(),
+        html.H1(children='Slide Placement Status'),
+        html.Label("Choose date"),
+            dcc.Dropdown(id = 'place3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
+            dcc.Graph(id='graphplace3',style={'verticalAlign': 'middle','margin-left': '550px'}),
+        html.Br(),
+        html.H1(children='Slide Locking Status'),
+        html.Label("Choose date"),
+            dcc.Dropdown(id = 'current3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
+            html.Br(),
+            dcc.RadioItems(id = 's3_rbutton',options = [dict(label = 'Current Info', value = 'A'),
+                                                 dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
+            dcc.Graph(id='graphcurrent3',style={'verticalAlign': 'middle','margin-left': '550px'}), 
+        ]),
+        # |----------------------------------------------------------------------------|
+        # STATION - 4
+        # |----------------------------------------------------------------------------|
         dcc.Tab(label=Station_4,style=tab_style, selected_style=tab_selected_style, children=[
         html.Br(),
         html.H1(children='Slot Status'),
@@ -220,17 +234,20 @@ app.layout = html.Div([
         html.H1(children='RZ Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'rz4', options = category4,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphrz4',style={'verticalAlign': 'middle','margin-left': '350px'}),
+            dcc.Graph(id='graphrz4',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Placement Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'place4', options = category4,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphplace4',style={'verticalAlign': 'middle','margin-left': '350px'}),
+            dcc.Graph(id='graphplace4',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Locking Status'),
         html.Label("Choose date"),
             dcc.Dropdown(id = 'current4', options = category4,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[-1]),
-            dcc.Graph(id='graphcurrent4',style={'verticalAlign': 'middle','margin-left': '350px'}), 
+            html.Br(),
+            dcc.RadioItems(id = 's4_rbutton',options = [dict(label = 'Current Info', value = 'A'),
+                                                 dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
+            dcc.Graph(id='graphcurrent4',style={'verticalAlign': 'middle','margin-left': '550px'}), 
         ])
 
 ]) 
