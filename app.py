@@ -105,41 +105,61 @@ yesterday = today - timedelta(days = 1)
 today=str(today)
 yesterday=str(yesterday)
 
-Station_1 = "H01JBA21P"
-Station_2 = "H01JBA15R"
-Station_3 = "H01JBA11R"
-Station_4 = "H01JBA14R"
+Station_1 = "H01BBB23P"
+Station_2 = "H01BBB25P"
+Station_3 = "H01BBB19P"
+Station_4 = "H01BBB24P"
 # |----------------------------------------------------------------------------|
 # SLot Empty 
 # |----------------------------------------------------------------------------|
-res = es.search(index="basket_data", doc_type="", body={"_source":{}}, size=1000000,)
-print("basket_data ACQUIRED SUCCESSFULLY")
-basket_data = pd.json_normalize(res['hits']['hits'])
-basket_data['date'] = pd.to_datetime(basket_data['_source.data.time_stamp']).dt.date
-basket_data['date'] = pd.to_datetime(basket_data['date'])
-basket_data = basket_data.dropna(subset=['_source.data.row_index','_source.data.col_index'])
-basket_data['_source.data.row_index'] = basket_data['_source.data.row_index'].astype(int)
-basket_data['_source.data.col_index'] = basket_data['_source.data.col_index'].astype(int)
-basket_data['dropdown'] = basket_data['date'].astype(str)+"("+basket_data['_source.data.load_identifier']+")"
-basket_data['row_col'] = (basket_data['_source.data.row_index']+1).astype(str)+"_"+(basket_data['_source.data.col_index']+1).astype(str)
-basket_data = basket_data.sort_values(["_source.data.row_index","_source.data.col_index"], ascending = (True, True))
+# res = es.search(index="basket_data", doc_type="", body={"_source":{}}, size=1000000,)
+# print("basket_data ACQUIRED SUCCESSFULLY")
+# basket_data = pd.json_normalize(res['hits']['hits'])
+# basket_data['date'] = pd.to_datetime(basket_data['_source.data.time_stamp']).dt.date
+# basket_data['date'] = pd.to_datetime(basket_data['date'])
+# basket_data = basket_data.dropna(subset=['_source.data.row_index','_source.data.col_index'])
+# basket_data['_source.data.row_index'] = basket_data['_source.data.row_index'].astype(int)
+# basket_data['_source.data.col_index'] = basket_data['_source.data.col_index'].astype(int)
+# basket_data['dropdown'] = basket_data['date'].astype(str)+"("+basket_data['_source.data.load_identifier']+")"
+# basket_data['row_col'] = (basket_data['_source.data.row_index']+1).astype(str)+"_"+(basket_data['_source.data.col_index']+1).astype(str)
+# basket_data = basket_data.sort_values(["_source.data.row_index","_source.data.col_index"], ascending = (True, True))
+
+def dataframes_additions(df):
+    df['date'] = pd.to_datetime(df['_source.data.time_stamp']).dt.date
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.dropna(subset=['_source.data.row_index','_source.data.col_index'])
+    df['_source.data.row_index'] = df['_source.data.row_index'].astype(int)
+    df['_source.data.col_index'] = df['_source.data.col_index'].astype(int)
+    df['dropdown'] = df['date'].astype(str)+"("+df['_source.data.load_identifier']+")"
+    df['row_col'] = (df['_source.data.row_index']+1).astype(str)+"_"+(df['_source.data.col_index']+1).astype(str)
+    df = df.sort_values(["_source.data.row_index","_source.data.col_index"], ascending = (True, True))
+
+    return df
 
 
 def slots_plot(output,input):
     @app.callback(Output(output, 'figure'),
                 [Input(input, 'value')])
     def figure_inten1(input_1):
-        x1 = basket_data[basket_data['dropdown']==input_1]
 
-        fig = px.scatter(x=x1['row_col'],y=x1['_source.data.slide_thickness'])
+        res = es.search(index="basket_data", doc_type="", body={"_source":{},'query': {'match_phrase':\
+            {"data.load_identifier": input_1.split("(")[-1].split(')')[0]}}}, size=1000000)
+
+        x1 = dataframes_additions(pd.json_normalize(res['hits']['hits']))
+
+        fig = px.scatter(y=x1['row_col'],x=x1['_source.data.slide_thickness'],facet_col=x1['_source.data.row_index'])
         # fig.add_hline(y=0.2,line_color="red")
-        fig.add_scatter(x=x1[x1['_source.data.slide_thickness']<0.2]['row_col'],
-                        y=x1[x1['_source.data.slide_thickness']<0.2]['_source.data.slide_thickness'],
-                    marker=dict(color="red",size=12),mode="markers")
-        fig.update_layout(hovermode="x unified",width=1200,showlegend=False)
-        fig.update_xaxes(title="Slot Position",tickangle=45)
-        fig.update_yaxes(dtick=1,range=[-0.8,3],title="Slide Thickness (mm)")
-        # fig.update_xaxes(categoryorder='category ascending')
+        # fig.add_scatter(x=x1[x1['_source.data.slide_thickness']<0.2]['row_col'],
+        #                 y=x1[x1['_source.data.slide_thickness']<0.2]['_source.data.slide_thickness'],
+        #             marker=dict(color="red",size=12),mode="markers")
+        fig.update_layout(hovermode="x unified",height=1200,showlegend=False)
+        fig.update_xaxes(title="Slide Thickness (mm)",tickangle=45)
+        fig.update_yaxes(matches=None,dtick=1,range=[-0.8,3],autorange="reversed")
+        fig.for_each_annotation(lambda a: a.update(text="<b>Row No :"+a.text.split("=")[-1]))
+        fig.update_yaxes(showticklabels=True)
+        fig.update_yaxes(title='')
+        fig.update_layout(yaxis1=dict(title="Slot Position"))
+
         
         return fig
 # @app.callback(
@@ -197,6 +217,11 @@ def rz_plot(output,input):
     def figure_inten1(input_1):
         x1 = both[both['dropdown']==input_1]
 
+        # fig = make_subplots(
+        #     rows=2, cols=2,
+        #     specs=[[{}, {}],
+        #         [{"colspan": 2}, None]],row_width=[0.2, 0.4],
+        #     subplot_titles=("X-Offset","Angle Permissible", "Y-Offset"))
         fig = go.Figure()
         fig.add_scatter(x=x1['_source.data.actual_angle'],y=x1['row_col'],mode="markers",name="Angle Before Placement",marker=dict(size=12))
         fig.add_scatter(x=x1['computed_angle'],y=x1['row_col'],mode="markers",name="Angle Slide Came With",marker=dict(size=12))

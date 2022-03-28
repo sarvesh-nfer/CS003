@@ -55,10 +55,10 @@ slide_locking['date'] = pd.to_datetime(slide_locking['date'])
 
 slide_locking['dropdown'] = slide_locking['date'].astype(str)+"("+slide_locking['_source.data.load_identifier']+")"
 
-Station_1 = "H01JBA21P"
-Station_2 = "H01JBA15R"
-Station_3 = "H01JBA11R"
-Station_4 = "H01JBA14R"
+Station_1 = "H01BBB23P"
+Station_2 = "H01BBB25P"
+Station_3 = "H01BBB19P"
+Station_4 = "H01BBB24P"
 
 
 
