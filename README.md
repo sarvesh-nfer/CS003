@@ -1,2 +1,2 @@
-# CS003
- CS003 Cluster data
+# CLuster Performance dashboard
+ To monitor hardware aspects of the cluster for a duration of cycle.
