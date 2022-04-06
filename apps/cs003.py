@@ -198,31 +198,13 @@ app.layout = html.Div([
             dcc.RadioItems(id = 's1_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
             dcc.Graph(id='graphcurrent1',style={'verticalAlign': 'middle','margin-left': '550px'}),
-        html.Div([
-        html.Div([
-            html.Br(),
-            html.H1(children='Date-1'),
-            html.Label("Choose date"),
-            dcc.Dropdown(id = 'post_id1', options = get_post_categories(Station_1), value = get_post_categories(Station_1)[0]["label"]),
-            dcc.Graph(id='intensity1'),], className='six columns'),
-        html.Div([
-            html.Br(),
-            html.H1(children='Date-2'),
-            html.Label("Choose date"),
-            dcc.Dropdown(id = 'post_id2', options = get_post_categories(Station_1), value = get_post_categories(Station_1)[1]["label"]),
-            dcc.Graph(id='intensity2'),], className='six columns'),
-        html.Div([
-            html.Br(),
-            html.H1(children='Difference'),
-            dcc.Graph(id='difference'),], className='six columns'),], className='row'),
-        html.Div([
-        html.Div([
-        html.H1(children='_Date-1'),
-            dcc.Graph(id='centering1'),], className='six columns'),
-        html.Div([
-        html.H1(children='Date-2'),
-            dcc.Graph(id='centering2'),], className='six columns'),], className='row'),
+
+
         html.Br(),
+        html.H1(children='Optical Data'),
+        html.Label("Choose date"),
+            dcc.Dropdown(id = 'post_id1', options = get_post_categories(Station_1), value = get_post_categories(Station_1)[0]["label"]),
+            dcc.Graph(id='post1',style={'verticalAlign': 'middle','margin-left': '550px'})
         ]),
         # |----------------------------------------------------------------------------|
         # STATION - 2
@@ -256,7 +238,12 @@ app.layout = html.Div([
             html.Br(),
             dcc.RadioItems(id = 's2_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                         dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
-            dcc.Graph(id='graphcurrent2',style={'verticalAlign': 'middle','margin-left': '550px'}),     
+            dcc.Graph(id='graphcurrent2',style={'verticalAlign': 'middle','margin-left': '550px'}),
+        html.Br(),
+        html.H1(children='Optical Data'),
+        html.Label("Choose date"),
+            dcc.Dropdown(id = 'post_id2', options = get_post_categories(Station_2), value = get_post_categories(Station_2)[0]["label"]),
+            dcc.Graph(id='post2',style={'verticalAlign': 'middle','margin-left': '550px'}) 
         ]),
         # |----------------------------------------------------------------------------|
         # STATION - 3
@@ -290,7 +277,12 @@ app.layout = html.Div([
             html.Br(),
             dcc.RadioItems(id = 's3_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
-            dcc.Graph(id='graphcurrent3',style={'verticalAlign': 'middle','margin-left': '550px'}), 
+            dcc.Graph(id='graphcurrent3',style={'verticalAlign': 'middle','margin-left': '550px'}),
+        html.Br(),
+        html.H1(children='Optical Data'),
+        html.Label("Choose date"),
+            dcc.Dropdown(id = 'post_id3', options = get_post_categories(Station_3), value = get_post_categories(Station_3)[0]["label"]),
+            dcc.Graph(id='post3',style={'verticalAlign': 'middle','margin-left': '550px'})
         ]),
         # |----------------------------------------------------------------------------|
         # STATION - 4
@@ -324,7 +316,12 @@ app.layout = html.Div([
             html.Br(),
             dcc.RadioItems(id = 's4_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
-            dcc.Graph(id='graphcurrent4',style={'verticalAlign': 'middle','margin-left': '550px'}), 
+            dcc.Graph(id='graphcurrent4',style={'verticalAlign': 'middle','margin-left': '550px'}),
+        html.Br(),
+        html.H1(children='Optical Data'),
+        html.Label("Choose date"),
+            dcc.Dropdown(id = 'post_id4', options = get_post_categories(Station_4), value = get_post_categories(Station_4)[0]["label"]),
+            dcc.Graph(id='post4',style={'verticalAlign': 'middle','margin-left': '550px'})
         ])
 
 ]) 

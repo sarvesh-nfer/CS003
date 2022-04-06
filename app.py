@@ -467,37 +467,57 @@ def post_plots(output,input):
         res = es.search(index="post", doc_type="", body={"_source":{
             "includes":["data.scanner_name","data.time_stamp","data.cluster_name","data.centering_info"]},
             "query": {"bool": {"must": [{"match": { "data.time_stamp": input_1 }}]}}}, size=1000000,)
-        post = pd.json_normalize(res['hits']['hits'])
-        post1 = pd.json_normalize(post['_source.data.centering_info'][0])
-        print(input_1)
-        print(post1)
+        post1 = pd.json_normalize(res['hits']['hits'])
+        post = pd.json_normalize(post1['_source.data.centering_info'][0])
 
-        fig2 = go.Figure()
-        fig2.add_trace(go.Scatter(y=post1['mean_red_intensity'],mode='lines',name='Mean Red',
-                         line=dict(color='red')),row=1,col=2)
-        fig2.add_trace(go.Scatter(y=post1['mean_blue_intensity'],mode='lines',name='Mean Blue',
+        fig2 = make_subplots(rows=1, cols=2,subplot_titles=("<b>Centring","<b>Illuminaion"))
+        fig2.add_trace(go.Scatter(x=post['centring_coordinate_x'],y=post['centring_coordinate_y'],
+                                mode='markers',
+                                name='Dispersion',
+                                ),row=1,col=1)
+        fig2.update_yaxes(title="Stage Y",range=[1216,0],row=1,col=1,ticks="outside", tickwidth=2, tickcolor='crimson')
+        fig2.update_xaxes(title="Stage X",range=[0,1936],row=1,col=1,ticks="outside", tickwidth=2, tickcolor='crimson')
+        fig2.add_shape(type="rect",
+            xref="x", yref="y",
+            x0=768, y0=408, x1=1168, y1=808,
+            line_color="red",row=1,col=1
+        )
+        fig2.add_vline(x=968,line=dict(color="red"),opacity=0.3,row=1,col=1)
+        fig2.add_hline(y=608,line=dict(color="red"),opacity=0.3,row=1,col=1)
+        fig2.add_annotation(text="<b>Number of Steps : <b>"+str(len(post))+"<br><b>Average X-Shift : "+\
+                        str(round(np.mean(post['centring_x_difference']),2))+"\t Average Y-Shift : <b>"+\
+            str(round(np.mean(post['centring_y_difference']),2))+"</b><br>Max X-Shift : <b>"+str(round(max(post['centring_x_difference']),2))+\
+                    "</b>\t Max Y-Shift : <b>"+str(round(max(post['centring_y_difference']),2))+\
+                    "</b><br>Min X-Shift : <b>"+str(round(min(post['centring_x_difference']),2))+\
+                    "</b>\t Min Y-Shift : <b>"+str(round(min(post['centring_y_difference']),2))
+                    ,showarrow=False,font=dict(family="Courier New, monospace",size=12,color="black"),row=1,col=1,
+                xref="paper", yref="paper",x=1800, y=5,bordercolor="#c7c7c7",borderwidth=2,borderpad=4,bgcolor="#ffffff",opacity=0.8)
+        ##adding illumination
+        fig2.add_trace(go.Scatter(y=post['mean_red_intensity'],mode='lines',name='Mean Red',
+                                line=dict(color='red')),row=1,col=2)
+        fig2.add_trace(go.Scatter(y=post['mean_blue_intensity'],mode='lines',name='Mean Blue',
                                 line=dict(color='blue')),row=1,col=2)
-        fig2.add_trace(go.Scatter(y=post1['mean_green_intensity'],mode='lines', name='Mean Green',
+        fig2.add_trace(go.Scatter(y=post['mean_green_intensity'],mode='lines', name='Mean Green',
                                 line=dict(color='green')),row=1,col=2)
-        fig2.update_yaxes(title="Intensity",range=[150, 260])
-        fig2.update_xaxes(title="Z Steps")
+        fig2.update_yaxes(title="Intensity",range=[150, 260],row=1,col=2)
+        fig2.update_xaxes(title="Z Steps",row=1,col=2)
 
         fig2.update_layout(showlegend=False,font=dict(family="Courier New, monospace",size=16,color="Black"),width=1800,height=800)
-        fig2.add_annotation(text="<b>Calibration Data for <b>: H01BBB24P",xref="paper", yref="paper",showarrow=False,x=0, y=1.11,font=dict(family="Courier New, monospace",
+        fig2.add_annotation(text="<b>Calibration Data for <b>: "+str(input_1),xref="paper", yref="paper",showarrow=False,x=0, y=1.08,font=dict(family="Courier New, monospace",
                 size=24,color="RebeccaPurple"))
-        fig2.add_annotation(text="<b>Number of Steps : <b>"+str(len(post1))+"<br><b>Min μ Red : "+\
-                    str(round(min(post1['mean_red_intensity']),2))+"\t | Max μ Red : <b>"+\
-        str(round(max(post1['mean_red_intensity']),2))+"</b><br> Min μ Green : <b>"+str(round(min(post1['mean_green_intensity']),2))+\
-                "</b>\t | Min μ Green : <b>"+str(round(min(post1['mean_green_intensity']),2))+\
-                "</b><br> Min μ Blue : <b>"+str(round(min(post1['mean_red_intensity']),2))+\
-                "</b>\t | Min μ Blue : <b>"+str(round(min(post1['mean_red_intensity']),2))
-                ,showarrow=False,font=dict(family="Courier New, monospace",size=12,color="black"),
+        fig2.add_annotation(text="<b>Number of Steps : <b>"+str(len(post))+"<br><b>Min μ Red : "+\
+                    str(round(min(post['mean_red_intensity']),2))+"\t | Max μ Red : <b>"+\
+        str(round(max(post['mean_red_intensity']),2))+"</b><br> Min μ Green : <b>"+str(round(min(post['mean_green_intensity']),2))+\
+                "</b>\t | Min μ Green : <b>"+str(round(min(post['mean_green_intensity']),2))+\
+                "</b><br> Min μ Blue : <b>"+str(round(min(post['mean_blue_intensity']),2))+\
+                "</b>\t | Min μ Blue : <b>"+str(round(min(post['mean_blue_intensity']),2))
+                ,showarrow=False,font=dict(family="Courier New, monospace",size=12,color="black"),row=1,col=2,
                     x=60, y=254,bordercolor="#c7c7c7",borderwidth=2,borderpad=4,bgcolor="#ffffff",opacity=0.8)
         
         return fig2
 
 for i in range(4):
-    post_plots("intensity{}".format((i+1)),"post_id{}".format((i+1)))
+    post_plots("post{}".format((i+1)),"post_id{}".format((i+1)))
 
 
 if __name__ == '__main__':
