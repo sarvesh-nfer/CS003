@@ -30,6 +30,7 @@ dropdown = dbc.DropdownMenu(
     children=[
         dbc.DropdownMenuItem("Home", href="/home"),
         dbc.DropdownMenuItem("CS003", href="/cs003"),
+        dbc.DropdownMenuItem("CS004", href="/cs004"),
     ],
     nav = True,
     in_navbar = True,
@@ -106,10 +107,10 @@ yesterday = today - timedelta(days = 1)
 today=str(today)
 yesterday=str(yesterday)
 
-Station_1 = "H01BBB23P"
-Station_2 = "H01BBB25P"
-Station_3 = "H01BBB19P"
-Station_4 = "H01BBB24P"
+# Station_1 = "H01BBB23P"
+# Station_2 = "H01BBB25P"
+# Station_3 = "H01BBB19P"
+# Station_4 = "H01BBB24P"
 # |----------------------------------------------------------------------------|
 # SLot Empty 
 # |----------------------------------------------------------------------------|
@@ -143,11 +144,13 @@ def slots_plot(output,input):
         # fig.add_scatter(x=x1[x1['_source.data.slide_thickness']<0.2]['row_col'],
         #                 y=x1[x1['_source.data.slide_thickness']<0.2]['_source.data.slide_thickness'],
         #             marker=dict(color="red",size=12),mode="markers")
-        fig.update_layout(height=1200,showlegend=False)
+        fig.update_layout(height=1200,width=1200,showlegend=False)
         fig.update_xaxes(title="Slide Thickness (mm)",tickangle=45,range=[0,3])
         fig.update_yaxes(showticklabels=True)
         fig.update_yaxes(title='',showticklabels=False)
         fig.update_layout(yaxis1=dict(title="Slot Position",showticklabels=True))
+        fig.add_annotation(text="<b>"+x1['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                size=24,color="RebeccaPurple"))
 
         return fig
 
@@ -219,6 +222,8 @@ def rz_plot(output,input):
                 bgcolor="white",
                 opacity=0.8
                 )
+        fig.add_annotation(text="<b>"+both['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                size=24,color="RebeccaPurple"))
         
         return fig
 
@@ -274,6 +279,8 @@ def x_offset(output,input,option):
                     borderpad=4,
                     bgcolor="white",
                     opacity=0.8)
+            fig.add_annotation(text="<b>"+slide_placement['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                size=24,color="RebeccaPurple"))
             return fig
         else:
             fig = px.scatter(x=slide_placement["_source.data.offset_pos_x_um"],y=slide_placement['row_col'])
@@ -294,6 +301,8 @@ def x_offset(output,input,option):
                     borderpad=4,
                     bgcolor="white",
                     opacity=0.8)
+            fig.add_annotation(text="<b>"+slide_placement['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                size=24,color="RebeccaPurple"))
             return fig
 
 
@@ -338,6 +347,8 @@ def y_offset(output,input,option):
                     borderpad=4,
                     bgcolor="white",
                     opacity=0.8)
+            fig.add_annotation(text="<b>"+slide_placement['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                size=24,color="RebeccaPurple"))
             return fig
         else:
             fig = px.scatter(y=slide_placement["_source.data.offset_pos_y_um"],x=slide_placement['row_col'])
@@ -357,6 +368,8 @@ def y_offset(output,input,option):
                     borderpad=4,
                     bgcolor="white",
                     opacity=0.8)
+            fig.add_annotation(text="<b>"+slide_placement['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                size=24,color="RebeccaPurple"))
             return fig
 
 
@@ -411,9 +424,11 @@ def current_plot(output,input,o_input):
                             row=1, col=2)
                 
                 fig.add_hline(y=50, line_dash="dot", line_color="#000000", line_width=2)
-                fig.update_layout(width=1800,hovermode="x unified")
+                fig.update_layout(width=1500,hovermode="x unified")
                 fig.update_yaxes(title="Current Difference(mA)")
                 fig.update_xaxes(title="Slot Position")
+                fig.add_annotation(text="<b>"+x1['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                    size=24,color="RebeccaPurple"))
             else:
                 fig = go.Figure()
                 fig.add_scatter(x=x1['row_col'],y=x1['_source.data.first_current_diff'],name="Difference",mode="lines+markers",
@@ -425,6 +440,8 @@ def current_plot(output,input,o_input):
                 fig.update_layout(width=1800,hovermode="x unified")
                 fig.update_yaxes(title="Current Difference(mA)")
                 fig.update_xaxes(title="Slot Position")
+                fig.add_annotation(text="<b>"+x1['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                    size=24,color="RebeccaPurple"))
 
             return fig
         else:
@@ -453,6 +470,8 @@ def current_plot(output,input,o_input):
 
             fig.update_yaxes(range=[0,max(x1['_source.data.first_current_diff'])+20],title_text="<b>Current(mA)</b>", secondary_y=False)
             fig.update_yaxes(range=[70,77],title_text="<b>Height(mm)</b>", secondary_y=True)
+            fig.add_annotation(text="<b>"+x1['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+                size=24,color="RebeccaPurple"))
             return fig
                 
 for i in range(4):
@@ -503,7 +522,7 @@ def post_plots(output,input):
         fig2.update_xaxes(title="Z Steps",row=1,col=2)
 
         fig2.update_layout(showlegend=False,font=dict(family="Courier New, monospace",size=16,color="Black"),width=1800,height=800)
-        fig2.add_annotation(text="<b>Calibration Data for <b>: "+str(input_1),xref="paper", yref="paper",showarrow=False,x=0, y=1.08,font=dict(family="Courier New, monospace",
+        fig2.add_annotation(text="<b>Optical Data for <b>: "+str(input_1),xref="paper", yref="paper",showarrow=False,x=0, y=1.08,font=dict(family="Courier New, monospace",
                 size=24,color="RebeccaPurple"))
         fig2.add_annotation(text="<b>Number of Steps : <b>"+str(len(post))+"<br><b>Min μ Red : "+\
                     str(round(min(post['mean_red_intensity']),2))+"\t | Max μ Red : <b>"+\
@@ -513,6 +532,8 @@ def post_plots(output,input):
                 "</b>\t | Min μ Blue : <b>"+str(round(min(post['mean_blue_intensity']),2))
                 ,showarrow=False,font=dict(family="Courier New, monospace",size=12,color="black"),row=1,col=2,
                     x=60, y=254,bordercolor="#c7c7c7",borderwidth=2,borderpad=4,bgcolor="#ffffff",opacity=0.8)
+        fig2.add_annotation(text="<b>"+post1['_source.data.scanner_name'][0],xref="paper", yref="paper",showarrow=False,x=0, y=0,opacity=0.1,font=dict(family="Courier New, monospace",
+        size=24,color="RebeccaPurple"))
         
         return fig2
 

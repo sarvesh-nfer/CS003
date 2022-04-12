@@ -78,9 +78,28 @@ def get_post_categories(scanner_name):
     "includes":["data.scanner_name","data.time_stamp","data.cluster_name"]},
     "query": {"bool": {"must": [{"match": { "data.scanner_name": scanner_name }}]}}}, size=10000,)
     df = pd.json_normalize(res['hits']['hits'])
-    for opt in sorted(df[df['_source.data.scanner_name']==scanner_name]['_source.data.time_stamp'].unique())[::-1]:
+    for opt in sorted(df['_source.data.time_stamp'].unique())[::-1]:
         categories.append({'label' : opt, 'value' : opt})
     return categories
+
+def other_categories(scanner_name):
+    other_categories = []
+
+    res = es.search(index="slide_locking", doc_type="", body={"_source":{
+    "includes":["data.load_identifier","data.time_stamp","data.scanner_name","data.cluster_name"]},
+    "query": {"bool": {"must": [{"match": { "data.scanner_name": scanner_name }}]}}}, size=10000)
+    slide_locking = pd.json_normalize(res['hits']['hits'])
+
+    slide_locking['date'] = pd.to_datetime(slide_locking['_source.data.time_stamp']).dt.date
+    slide_locking['date'] = pd.to_datetime(slide_locking['date'])
+
+    slide_locking['dropdown'] = slide_locking['date'].astype(str)+"("+slide_locking['_source.data.load_identifier']+")"
+    for opt in sorted(slide_locking['dropdown'].unique())[::-1]:
+        other_categories.append({'label' : opt, 'value' : opt})
+    
+    return other_categories
+
+
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -110,21 +129,21 @@ tab_selected_style = {
 }
 ##tab style ends here
 
-category1 = []
-for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[::-1]:
-    category1.append({'label' : opt, 'value' : opt})
+# category1 = []
+# for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[::-1]:
+#     category1.append({'label' : opt, 'value' : opt})
 
-category2 = []
-for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[::-1]:
-    category2.append({'label' : opt, 'value' : opt})
+# category2 = []
+# for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[::-1]:
+#     category2.append({'label' : opt, 'value' : opt})
 
-category3 = []
-for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[::-1]:
-    category3.append({'label' : opt, 'value' : opt})
+# category3 = []
+# for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[::-1]:
+#     category3.append({'label' : opt, 'value' : opt})
 
-category4 = []
-for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[::-1]:
-    category4.append({'label' : opt, 'value' : opt})
+# category4 = []
+# for opt in sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[::-1]:
+#     category4.append({'label' : opt, 'value' : opt})
 
 
 
@@ -169,7 +188,7 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slot Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'slots1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'slots1', options = other_categories(Station_1), value = other_categories(Station_1)[0]["label"]),
             dcc.RadioItems(id = 'button_slot1',options = [dict(label = 'Selected Cycle', value = 'A'),
                                                  dict(label = '2 Days', value = 'B'),
                                                  dict(label = '5 Days', value = 'C')],value = 'A'),
@@ -177,12 +196,12 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='RZ Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'rz1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'rz1', options = other_categories(Station_1), value = other_categories(Station_1)[0]["label"]),
             dcc.Graph(id='graphrz1',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Placement Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'place1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'place1', options = other_categories(Station_1), value = other_categories(Station_1)[0]["label"]),
         html.Br(),
             dcc.RadioItems(id = 'button_place1',options = [dict(label = 'Summary View', value = 'A'),
                                                  dict(label = 'Row Wise View', value = 'B')],value = 'A'),
@@ -193,7 +212,7 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slide Locking Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'current1', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'current1', options = other_categories(Station_1), value = other_categories(Station_1)[0]["label"]),
             html.Br(),
             dcc.RadioItems(id = 's1_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
@@ -213,17 +232,17 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slot Status'),
         html.Label("Choose date"),
-                dcc.Dropdown(id = 'slots2', options = category2,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[-1]),
+                dcc.Dropdown(id = 'slots2', options = other_categories(Station_2), value = other_categories(Station_2)[0]["label"]),
                 dcc.Graph(id='graphslots2',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='RZ Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'rz2', options = category2,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'rz2', options = other_categories(Station_2), value = other_categories(Station_2)[0]["label"]),
             dcc.Graph(id='graphrz2',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Placement Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'place2', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'place2', options = other_categories(Station_2), value = other_categories(Station_2)[0]["label"]),
         html.Br(),
             dcc.RadioItems(id = 'button_place2',options = [dict(label = 'Summary View', value = 'A'),
                                                  dict(label = 'Row Wise View', value = 'B')],value = 'A'),
@@ -234,7 +253,7 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slide Locking Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'current2', options = category2,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_2]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'current2', options = other_categories(Station_2), value = other_categories(Station_2)[0]["label"]),
             html.Br(),
             dcc.RadioItems(id = 's2_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                         dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
@@ -252,17 +271,17 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slot Status'),
         html.Label("Choose date"),
-                dcc.Dropdown(id = 'slots3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
+                dcc.Dropdown(id = 'slots3', options = other_categories(Station_3), value = other_categories(Station_3)[0]["label"]),
                 dcc.Graph(id='graphslots3',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='RZ Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'rz3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'rz3', options = other_categories(Station_3), value = other_categories(Station_3)[0]["label"]),
             dcc.Graph(id='graphrz3',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Placement Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'place3', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'place3', options = other_categories(Station_3), value = other_categories(Station_3)[0]["label"]),
         html.Br(),
             dcc.RadioItems(id = 'button_place3',options = [dict(label = 'Summary View', value = 'A'),
                                                  dict(label = 'Row Wise View', value = 'B')],value = 'A'),
@@ -273,7 +292,7 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slide Locking Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'current3', options = category3,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_3]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'current3', options = other_categories(Station_3), value = other_categories(Station_3)[0]["label"]),
             html.Br(),
             dcc.RadioItems(id = 's3_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
@@ -291,17 +310,17 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slot Status'),
         html.Label("Choose date"),
-                dcc.Dropdown(id = 'slots4', options = category4,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[-1]),
+                dcc.Dropdown(id = 'slots4', options = other_categories(Station_4), value = other_categories(Station_4)[0]["label"]),
                 dcc.Graph(id='graphslots4',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='RZ Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'rz4', options = category4,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'rz4', options = other_categories(Station_4), value = other_categories(Station_4)[0]["label"]),
             dcc.Graph(id='graphrz4',style={'verticalAlign': 'middle','margin-left': '550px'}),
         html.Br(),
         html.H1(children='Slide Placement Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'place4', options = category1,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_1]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'place4', options = other_categories(Station_4), value = other_categories(Station_4)[0]["label"]),
         html.Br(),
             dcc.RadioItems(id = 'button_place4',options = [dict(label = 'Summary View', value = 'A'),
                                                  dict(label = 'Row Wise View', value = 'B')],value = 'A'),
@@ -312,7 +331,7 @@ app.layout = html.Div([
         html.Br(),
         html.H1(children='Slide Locking Status'),
         html.Label("Choose date"),
-            dcc.Dropdown(id = 'current4', options = category4,value=sorted(slide_locking[slide_locking['_source.data.scanner_name']==Station_4]['dropdown'].unique())[-1]),
+            dcc.Dropdown(id = 'current4', options =  other_categories(Station_4), value = other_categories(Station_4)[0]["label"]),
             html.Br(),
             dcc.RadioItems(id = 's4_rbutton',options = [dict(label = 'Current Info', value = 'A'),
                                                  dict(label = 'Correlate with Slide Height', value = 'B')],value = 'A'),
